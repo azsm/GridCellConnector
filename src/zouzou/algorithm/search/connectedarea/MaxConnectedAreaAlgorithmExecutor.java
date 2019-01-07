@@ -1,9 +1,10 @@
 package zouzou.algorithm.search.connectedarea;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 class MaxConnectedAreaAlgorithmExecutor {
-    Stack<Cell> neighbourStack = new Stack<>();
+    Deque<Cell> neighbourStack = new ArrayDeque<>();
 
     public int compute(int[][] matrix) {
         int maxAreaSize = 0;
@@ -23,7 +24,7 @@ class MaxConnectedAreaAlgorithmExecutor {
         int areaSize = 0;
 
         neighbourStack.push(new Cell(r, c));
-        while (!neighbourStack.empty()) {
+        while (!neighbourStack.isEmpty()) {
             areaSize++;
 
             Cell currentCell = neighbourStack.pop();
