@@ -1,8 +1,11 @@
+package zouzou.algorithm.search.connectedarea;
+
 import java.util.Stack;
 
-class MaxConnectedAreaAlgo {
-    int compute(int[][] matrix) {
-        // see if it is
+class MaxConnectedAreaAlgorithmExecutor {
+    Stack<Cell> neighbourStack = new Stack<>();
+
+    public int compute(int[][] matrix) {
         int maxAreaSize = 0;
         for (int r = 0; r < matrix.length; r++) {
             for (int c = 0; c < matrix[r].length; c++) {
@@ -18,9 +21,8 @@ class MaxConnectedAreaAlgo {
 
     private int computeAreaSize(int[][] matrix, int r, int c) {
         int areaSize = 0;
-        Stack<Cell> neighbourStack = new Stack<>();
-        neighbourStack.push(new Cell(r, c));
 
+        neighbourStack.push(new Cell(r, c));
         while (!neighbourStack.empty()) {
             areaSize++;
 
