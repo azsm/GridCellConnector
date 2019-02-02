@@ -1,75 +1,98 @@
 package zouzou.algorithm.search.Astar;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class AStarAlgo {
-    public int initAndExecute(char[][] matrix, Point start, Point end) {
-        return execute(matrix, start, end, new HashSet<>());
-    }
+
 
     public int execute(char[][] matrix,
-                       Point start,
-                       Point end,
-                       Set<Point> crossedPoints) {
-        System.out.println("Process from " + start + " to " + end);
-        crossedPoints.add(start);
+                        int startX, int startY,
+                        int endX, int endY) {
+        Point startPoint = new Point(startX, startY);
+        Point endPoint = new Point(endX, endY);
+        startPoint.distFromStart = 0;
+        startPoint.heuresticDistToEnd = heuristicVal(startPoint, endPoint);
+        System.out.println("Process from " + startPoint + " to " + endPoint);
 
-        Set<Point> neighbours = nearestPoint(start, matrix);
-        if (neighbours.contains(end)) {
-            return 1;
-        } else if (neighbours.isEmpty()) {
-            throw new RuntimeException("Zouzou you can do better, I trust on you");
-        }
-        int minHeuristic = Integer.MAX_VALUE;
-        Point nextPoint = null;
-        for (Point n : neighbours) {
-            if(crossedPoints.contains(n)) {
-                continue;
-            }
-            int heuristicVal = heuristicVal(n, end);
-            if (heuristicVal < minHeuristic) {
-                minHeuristic = heuristicVal;
-                nextPoint = n;
-            }
-        }
-        return 1 + execute(matrix, nextPoint, end, crossedPoints);
+        PriorityQueue<Point> priorityQueue = new PriorityQueue<>((o1, o2) ->
+                o1.distFromStart + o1.heuresticDistToEnd
+                        - o2.distFromStart - o2.heuresticDistToEnd);
+        Map<Point, Integer> crossedPoints = new HashMap<>();
 
+        priorityQueue.offer(startPoint);
+        while(!priorityQueue.isEmpty()) {
+            Point currentPoint = priorityQueue.poll();
+            crossedPoints.put(currentPoint, currentPoint.getEstimatedDistance());
+
+            if(currentPoint.heuresticDistToEnd == 0) {
+                return currentPoint.distFromStart;
+            }
+            else {
+                nearestPoints(currentPoint, matrix).stream()
+                        .peek(p -> {
+                            p.distFromStart = currentPoint.distFromStart + 1;
+                            p.heuresticDistToEnd = heuristicVal(p, endPoint);
+                        })
+                        .filter(p -> !crossedPoints.containsKey(p) ||
+                                crossedPoints.get(p) > p.getEstimatedDistance())
+                        .forEach(priorityQueue::offer);
+            }
+        }
+        throw new RuntimeException("Impossible solution");
     }
 
     private int heuristicVal(Point s, Point n) {
-        return Math.abs(s.x - n.x) + Math.abs(s.y - n.y);
+        return (Math.abs(s.x - n.x) > 0 ? 1 : 0)
+                + (Math.abs(s.y - n.y) > 0 ? 1 : 0);
     }
 
-    private Set<Point> nearestPoint(Point current, char[][] matrix) {
+    private Set<Point> nearestPoints(Point current, char[][] matrix) {
         int matrixRowNum = matrix.length;
         int matrixColNum = matrix[0].length;
 
-        Set<Point> neighbour = new HashSet<>();
-        if (current.x > 0 && matrix[current.x - 1][current.y] != 'X') {
-            neighbour.add(new Point(current.x - 1, current.y));
-        }
-        if (current.y > 0 && matrix[current.x][current.y - 1] != 'X') {
-            neighbour.add(new Point(current.x, current.y - 1));
-        }
-        if (current.x < matrixRowNum - 1 && matrix[current.x + 1][current.y] != 'X') {
-            neighbour.add(new Point(current.x + 1, current.y));
-        }
-        if (current.y < matrixColNum - 1 && matrix[current.x][current.y + 1] != 'X') {
-            neighbour.add(new Point(current.x, current.y + 1));
+        Set<Point> nearestPoints = new HashSet<>();
+
+        int xNext = current.x + 1;
+        while (xNext < matrixRowNum && matrix[xNext][current.y] != 'X') {
+            nearestPoints.add(new Point(xNext, current.y));
+            xNext++;
         }
 
-        return neighbour;
+        xNext = current.x - 1;
+        while (xNext >= 0 && matrix[xNext][current.y] != 'X') {
+            nearestPoints.add(new Point(xNext, current.y));
+            xNext--;
+        }
+
+        int yNext = current.y + 1;
+        while (yNext < matrixColNum && matrix[current.x][yNext] != 'X') {
+            nearestPoints.add(new Point(current.x, yNext));
+            yNext++;
+        }
+
+        yNext = current.y - 1;
+        while (yNext >= 0 && matrix[current.x][yNext] != 'X') {
+            nearestPoints.add(new Point(current.x, yNext));
+            yNext--;
+        }
+
+        return nearestPoints;
     }
 
     protected static class Point {
         int x;
         int y;
 
+        int distFromStart = Integer.MAX_VALUE;
+        int heuresticDistToEnd = Integer.MAX_VALUE;
+
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
+        }
+
+        public int getEstimatedDistance() {
+            return distFromStart + heuresticDistToEnd;
         }
 
         @Override

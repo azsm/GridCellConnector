@@ -8,23 +8,23 @@ public class AStarAlgoTest {
     public void execute_site_test() {
         AStarAlgo aStarAlgo = new AStarAlgo();
         char[][] matrix = new char[][]{{'.', '.', '.'}, {'.', 'X', '.'}, {'.', '.', '.'}};
-        int result = aStarAlgo.initAndExecute(matrix, new AStarAlgo.Point(0, 0), new AStarAlgo.Point(0, 2));
-        Assert.assertEquals(2, result);
+        int result = aStarAlgo.execute(matrix, 0, 0, 0, 2);
+        Assert.assertEquals(1, result);
     }
 
     @Test
     public void execute_site_test_With_2_X() {
         AStarAlgo aStarAlgo = new AStarAlgo();
         char[][] matrix = new char[][]{{'.', 'X', '.'}, {'.', 'X', '.'}, {'.', '.', '.'}};
-        int result = aStarAlgo.initAndExecute(matrix, new AStarAlgo.Point(0, 0), new AStarAlgo.Point(0, 2));
-        Assert.assertEquals(6, result);
+        int result = aStarAlgo.execute(matrix, 0, 0, 0, 2);
+        Assert.assertEquals(3, result);
     }
 
     @Test
     public void execute_site_test_With_2_X_SEPARETED() {
         AStarAlgo aStarAlgo = new AStarAlgo();
         char[][] matrix = new char[][]{{'.', 'X', '.'}, {'.', '.', '.'}, {'.', 'X', '.'}, {'.', '.', '.'}};
-        int result = aStarAlgo.initAndExecute(matrix, new AStarAlgo.Point(0, 0), new AStarAlgo.Point(0, 2));
-        Assert.assertEquals(4, result);
+        int result = aStarAlgo.execute(matrix, 0, 0, 0, 2);
+        Assert.assertEquals(3, result);
     }
 }
