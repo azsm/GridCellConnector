@@ -2,49 +2,35 @@ package zouzou.algorithm.search.Astar;
 
 import java.util.*;
 
-public class AStarAlgo {
-
-
+public class FindPathBFS {
     public int execute(char[][] matrix,
-                        int startX, int startY,
-                        int endX, int endY) {
+                       int startX, int startY,
+                       int endX, int endY) {
         Point startPoint = new Point(startX, startY);
         Point endPoint = new Point(endX, endY);
         startPoint.distFromStart = 0;
-        startPoint.heuresticDistToEnd = heuristicVal(startPoint, endPoint);
         System.out.println("Process from " + startPoint + " to " + endPoint);
 
-        PriorityQueue<Point> priorityQueue = new PriorityQueue<>((o1, o2) ->
-                o1.distFromStart + o1.heuresticDistToEnd
-                        - o2.distFromStart - o2.heuresticDistToEnd);
-        Map<Point, Integer> crossedPoints = new HashMap<>();
+        Deque<Point> queue = new ArrayDeque<>();
+        Set<Point> crossedPoints = new HashSet<>();
 
-        priorityQueue.offer(startPoint);
-        while(!priorityQueue.isEmpty()) {
-            Point currentPoint = priorityQueue.poll();
-            crossedPoints.put(currentPoint, currentPoint.getEstimatedDistance());
+        queue.offer(startPoint);
+        while (!queue.isEmpty()) {
+            Point currentPoint = queue.poll();
+            crossedPoints.add(currentPoint);
 
-            if(currentPoint.heuresticDistToEnd == 0) {
+            if (currentPoint.equals(endPoint)) {
                 return currentPoint.distFromStart;
-            }
-            else {
+            } else {
                 nearestPoints(currentPoint, matrix).stream()
-                        .peek(p -> {
-                            p.distFromStart = currentPoint.distFromStart + 1;
-                            p.heuresticDistToEnd = heuristicVal(p, endPoint);
-                        })
-                        .filter(p -> !crossedPoints.containsKey(p) ||
-                                crossedPoints.get(p) > p.getEstimatedDistance())
-                        .forEach(priorityQueue::offer);
+                        .peek(p -> p.distFromStart = currentPoint.distFromStart + 1)
+                        .filter(p -> !crossedPoints.contains(p))
+                        .forEach(queue::offer);
             }
         }
         throw new RuntimeException("Impossible solution");
     }
 
-    private int heuristicVal(Point s, Point n) {
-        return (Math.abs(s.x - n.x) > 0 ? 1 : 0)
-                + (Math.abs(s.y - n.y) > 0 ? 1 : 0);
-    }
 
     private Set<Point> nearestPoints(Point current, char[][] matrix) {
         int matrixRowNum = matrix.length;
@@ -82,17 +68,11 @@ public class AStarAlgo {
     protected static class Point {
         int x;
         int y;
-
         int distFromStart = Integer.MAX_VALUE;
-        int heuresticDistToEnd = Integer.MAX_VALUE;
 
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
-        }
-
-        public int getEstimatedDistance() {
-            return distFromStart + heuresticDistToEnd;
         }
 
         @Override
